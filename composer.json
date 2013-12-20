@@ -1,5 +1,11 @@
 {
     "name": "stiffbeards/ bravicility",
     "description": "",
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "autoload": {
+        "files": ["lib/Bravicility/functions.php"],
+        "psr-0": {
+            "Bravicility": "lib/"
+        }
+    }
 }
