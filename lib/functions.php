@@ -23,15 +23,6 @@ function dt2dtz($dt)
     return date('c', strtotime($dt));
 }
 
-function toMoney($string)
-{
-    return number_format((float) $string, 2, '.', '');
-}
-function isMoney($string)
-{
-    return preg_match('/^\d+(\.\d{0,2})?$/', $string);
-}
-
 /**
  * @param $methodTypeUrl 'GET http://ya.ru/preved' or 'POST json|form http://ya.ru/poka'
  * @param string $postContent
