@@ -1,6 +1,30 @@
 <?php
 
 //TODO это в какой-то РуХелпер что ли все
+function dt2RA_ru($dt)
+{
+    if ($dt == '0000-00-00 00:00:00') {
+        return '-';
+    }
+
+    $dt = date_parse($dt);
+    $dt = mktime($dt['hour'], $dt['minute'], $dt['second'], $dt['month'], $dt['day'], $dt['year']);
+
+    $timeStr = date('H:i', $dt);
+    switch (date('Ymd')) {
+        case date('Ymd', $dt):
+            return 'Сегодня ' . $timeStr;
+        case date('Ymd', $dt + 24 * 3600):
+            return 'Вчера ' . $timeStr;
+        case date('Ymd', $dt + 2 * 24 * 3600):
+            return 'Позавчера ' . $timeStr;
+        case date('Ymd', $dt - 24 * 3600):
+            return 'Завтра ' . $timeStr;
+        case date('Ymd', $dt - 2 * 24 * 3600):
+            return 'Послезавтра ' . $timeStr;
+    }
+    return date('d/m/Y H:i', $dt);
+}
 function number2text_ru($number, $decimals = 0, $rod = false)
 {
     if (($number / 1000000) >= 1) {

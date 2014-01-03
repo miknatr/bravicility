@@ -73,6 +73,11 @@ class Response
         return new static($statusCode, array('Content-Type: application/json; charset=UTF-8'), json_encode($json));
     }
 
+    public static function html($statusCode, $html)
+    {
+        return new static($statusCode, array('Content-Type: text/html; charset=UTF-8'), $html);
+    }
+
     protected $statusCode = 200;
     protected $headers = array();
     protected $content = '';

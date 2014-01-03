@@ -3,7 +3,10 @@
     "description": "",
     "minimum-stability": "dev",
     "autoload": {
-        "files": ["lib/Bravicility/functions.php"],
+        "files": [
+            "lib/Bravicility/functions.php",
+            "lib/Bravicility/ru_functions.php"
+        ],
         "psr-0": {
             "Bravicility": "lib/"
         }

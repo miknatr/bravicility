@@ -14,7 +14,7 @@ class Kernel
     public static function handleRequest(Request $request, array $routes, $exceptionControllerAlias, $container)
     {
         try {
-            $match = Kernel::route($routes, $request->method . ' ' . $request->uri);
+            $match = Kernel::route($routes, $request->method, $request->uri);
             $request->params['matches'] = $match[1];
             return Kernel::run($match[0], $request, $container);
         } catch (\Exception $e) {
@@ -26,20 +26,35 @@ class Kernel
     /**
      * @param array $routes
      * array(
-     *     'METHOD regex' => 'controllerClass::controllerMethod',
-     *     'GET /^\/api\/(?<version>[0-9]+)\/Primes\/(?<id>[0-9]+)$/' => '\\Primes\\PrimesController::getPrimeNumber',
-     * );
-     * @param string $uri 'POST /api/v42/Primes/73'
+     *     'index' => array(
+     *         'method' => 'GET|POST',
+     *         'uri'    => '#^/$#',
+     *         'action' => '\\Controller\\IndexController::index',
+     *     ),
+     *     'forgot_password' => array(
+     *         'method' => 'GET|POST',
+     *         'uri'    => '#^/forgot_password$#',
+     *         'action' => '\\Controller\\IndexController::forgot_password',
+     *     ),
+     *
+     *     'order_message' => array(
+     *         'method' => 'POST',
+     *         'uri'    => '#^/order_message/(?<id>\w+)',
+     *         'action' => '\\Controller\\OrderController::order_message',
+     *     ),
+     * ),
+     * @param $method
+     * @param string $uri
      * @throws RouteNotFoundException
      * @return array
      */
-    public static function route(array $routes, $uri)
+    protected static function route(array $routes, $method, $uri)
     {
         $uri = explode('?', $uri, 2)[0];
 
-        foreach ($routes as $regex => $controllerAlias) {
-            if (preg_match($regex, $uri, $matches)) {
-                return array($controllerAlias, $matches);
+        foreach ($routes as $route) {
+            if (in_array($method, explode('|', $route['method'])) && preg_match($route['regex'], $uri, $matches)) {
+                return array($route['action'], $matches);
             }
         }
 
@@ -47,14 +62,14 @@ class Kernel
     }
 
     /**
-     * @param $controllerAlias
+     * @param $action
      * @param Request $request
      * @param $container
      * @return Response
      */
-    public static function run($controllerAlias, Request $request, $container)
+    protected static function run($action, Request $request, $container)
     {
-        list($controllerClass, $controllerMethod) = explode('::', $controllerAlias, 2);
+        list($controllerClass, $controllerMethod) = explode('::', $action, 2);
         $controller = new $controllerClass($container);
         return $controller->$controllerMethod($request);
     }
