@@ -48,14 +48,29 @@ class Request
         return isset($this->get[$name]) ? $this->get[$name] : $default;
     }
 
+    public function allGet()
+    {
+        return $this->get;
+    }
+
     public function post($name, $default = null)
     {
         return isset($this->post[$name]) ? $this->post[$name] : $default;
     }
 
+    public function allPost()
+    {
+        return $this->post;
+    }
+
     public function option($name, $default = null)
     {
         return isset($this->options[$name]) ? $this->options[$name] : $default;
+    }
+
+    public function allOptions()
+    {
+        return $this->options;
     }
 
     public function addOption($name, $value)
