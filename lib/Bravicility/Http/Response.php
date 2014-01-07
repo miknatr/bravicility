@@ -78,11 +78,21 @@ class Response
         return new static($statusCode, array('Content-Type: text/html; charset=UTF-8'), $html);
     }
 
+    public static function text($statusCode, $text)
+    {
+        return new static($statusCode, array('Content-Type: text/plain; charset=UTF-8'), $text);
+    }
+
+    public static function redirect($location)
+    {
+        return new static(302, array('Location: ' . $location));
+    }
+
     protected $statusCode = 200;
     protected $headers = array();
     protected $content = '';
 
-    public function __construct($statusCode, $headers = array(), $content)
+    public function __construct($statusCode, $headers = array(), $content = '')
     {
         $this->statusCode = $statusCode;
         $this->headers    = is_array($headers) ? $headers : array($headers);

@@ -7,11 +7,11 @@ class Kernel
     /**
      * @param Request $request
      * @param array $routes
-     * @param $exceptionControllerAlias
+     * @param $exceptionAction
      * @param $container
      * @return Response
      */
-    public static function handleRequest(Request $request, array $routes, $exceptionControllerAlias, $container)
+    public static function handleRequest(Request $request, array $routes, $exceptionAction, $container)
     {
         try {
             $match = Kernel::route($routes, $request->method, $request->uri);
@@ -19,7 +19,7 @@ class Kernel
             return Kernel::run($match[0], $request, $container);
         } catch (\Exception $e) {
             $request->params['exception'] = $e;
-            return Kernel::run($exceptionControllerAlias, $request, $container);
+            return Kernel::run($exceptionAction, $request, $container);
         }
     }
 
@@ -53,7 +53,7 @@ class Kernel
         $uri = explode('?', $uri, 2)[0];
 
         foreach ($routes as $route) {
-            if (in_array($method, explode('|', $route['method'])) && preg_match($route['regex'], $uri, $matches)) {
+            if (in_array($method, $route['methods']) && preg_match($route['regex'], $uri, $matches)) {
                 return array($route['action'], $matches);
             }
         }

@@ -12,13 +12,13 @@ class Templater
         $this->templateDir = rtrim($templateDir . '/');
         $this->commonVars  = $commonVars;
     }
-    public function render($file, array $vars)
+    public function render($file, array $vars = array())
     {
         extract($vars);
         extract($this->commonVars);
         ob_start();
         /** @noinspection PhpIncludeInspection */
-        include $this->templateDir . $file;
+        include $this->templateDir . $file . '.html.php';
         $r = ob_get_contents();
         ob_end_clean();
         return $r;
