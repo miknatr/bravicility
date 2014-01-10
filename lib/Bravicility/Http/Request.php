@@ -14,11 +14,11 @@ class Request
 
     public function __construct($method = 'GET', $uri = '/', array $get = array(), array $post = array(), $rawBody = '')
     {
-        $this->method = $method;
-        $this->uri    = $uri;
-        $this->get = $get;
-        $this->post = $post;
-        $this->rawBody   = $rawBody;
+        $this->method  = $method;
+        $this->uri     = explode('?', $uri, 2)[0];
+        $this->get     = $get;
+        $this->post    = $post;
+        $this->rawBody = $rawBody;
     }
 
 
