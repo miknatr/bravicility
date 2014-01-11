@@ -1,15 +1,15 @@
 <?php
 
-namespace Bravicility\Http;
+namespace Bravicility;
 
-class KernelTest extends \PHPUnit_Framework_TestCase
+class FunctionsTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @dataProvider phpdocTagsProvider
      */
     public function testGetPhpdocTags($expected, $phpdoc)
     {
-        $this->assertEquals($expected, Kernel::getPhpdocTags($phpdoc));
+        $this->assertEquals($expected, getPhpdocTags($phpdoc));
     }
 
     /**

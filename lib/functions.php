@@ -23,6 +23,64 @@ function dt2dtz($dt)
     return date('c', strtotime($dt));
 }
 
+function getPhpdocTags($phpdoc)
+{
+    preg_match_all(
+        '{
+            ^
+            \s* \* \s+
+            @ (\S+) ([^\n]*)
+            $
+        }xm',
+        $phpdoc,
+        $matches,
+        PREG_SET_ORDER
+    );
+
+    $tags = array();
+    foreach ($matches as $match) {
+        // TODO поддержка закавыченных строк
+        $args = preg_split('/\s+/', $match[2], -1, PREG_SPLIT_NO_EMPTY);
+
+        $tags[] = array(
+            'name'   => $match[1],
+            'args'   => $args,
+            'string' => '@' . $match[1] . $match[2],
+        );
+    }
+
+    return $tags;
+}
+
+function getFilesRecursively($dir, $includeDirs = false)
+{
+    $files = array();
+    $directories = array($dir);
+
+    while (sizeof($directories)) {
+        $curDir = array_pop($directories);
+        $handle = opendir($curDir);
+        while (false !== ($file = readdir($handle))) {
+            if ($file == '.' || $file == '..') {
+                continue;
+            }
+            $file  = $curDir . '/' . $file;
+            if (is_dir($file)) {
+                if ($includeDirs) {
+                    $files[] = $file;
+                }
+                $directory_path = $file;
+                array_push($directories, $directory_path);
+            } elseif (is_file($file)) {
+                $files[] = $file;
+            }
+        }
+        closedir($handle);
+    }
+
+    return $files;
+}
+
 /**
  * @param $methodTypeUrl 'GET http://ya.ru/preved' or 'POST json|form http://ya.ru/poka'
  * @param string $postContent

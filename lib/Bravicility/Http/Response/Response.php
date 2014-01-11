@@ -1,6 +1,6 @@
 <?php
 
-namespace Bravicility\Http;
+namespace Bravicility\Http\Response;
 
 class Response
 {
@@ -66,27 +66,6 @@ class Response
         510 => 'Not Extended',                                                // RFC2774
         511 => 'Network Authentication Required',                             // RFC6585
     );
-
-
-    public static function json($statusCode, $json = null)
-    {
-        return new static($statusCode, array('Content-Type: application/json; charset=UTF-8'), json_encode($json));
-    }
-
-    public static function html($statusCode, $html)
-    {
-        return new static($statusCode, array('Content-Type: text/html; charset=UTF-8'), $html);
-    }
-
-    public static function text($statusCode, $text)
-    {
-        return new static($statusCode, array('Content-Type: text/plain; charset=UTF-8'), $text);
-    }
-
-    public static function redirect($location)
-    {
-        return new static(302, array('Location: ' . $location));
-    }
 
     protected $statusCode = 200;
     protected $headers = array();
