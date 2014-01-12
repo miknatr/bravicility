@@ -76,7 +76,7 @@ class Kernel
      * @param string[] $callback
      * @param Request $request
      * @param $container
-     * @return \Bravicility\Http\Reызщтыу\\Bravicility\Http\Response\Response
+     * @return \Bravicility\Http\Response\Response
      */
     protected static function run($callback, Request $request, $container)
     {
