@@ -28,15 +28,17 @@ class RouteProvider
         foreach ($controllerFiles as $file) {
             $content = file_get_contents($file);
 
-            preg_match("/^namespace\s+(\S+);$/m", $content, $namespaceMatches);
-            $namespace = $namespaceMatches[1];
+            $namespace = '';
+            if (preg_match('/^namespace\s+(\S+);$/m', $content, $namespaceMatch)) {
+                $namespace = '\\' . $namespaceMatch[1];
+            }
 
-            if (!preg_match('/^class\s+(\S+)(?:(?:\s+extends|\s+implements|\s*\{)|$)/m', $content, $classMatches)) {
+            if (!preg_match('/^class\s+(\S+)(?:(?:\s+extends|\s+implements|\s*\{)|$)/m', $content, $classMatch)) {
                 continue;
             }
-            $class = $classMatches[1];
+            $class = $classMatch[1];
 
-            $classes[] = "\\$namespace\\$class";
+            $classes[] = $namespace . '\\' . $class;
         }
 
         $routes = array();
