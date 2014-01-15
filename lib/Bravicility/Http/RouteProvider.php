@@ -5,13 +5,13 @@ namespace Bravicility\Http;
 class RouteProvider
 {
     /** @var string[] */
-    private $controllerDirs;
+    private $controllerDirs = array();
     private $cacheDir;
 
     public function __construct(array $controllerDirs, $cacheDir)
     {
         $this->controllerDirs = $controllerDirs;
-        $this->cacheDir = $cacheDir;
+        $this->cacheDir       = $cacheDir;
     }
 
     /** @return array */
@@ -45,7 +45,7 @@ class RouteProvider
         foreach ($classes as $class) {
             $rClass = new \ReflectionClass($class);
 
-            $classPattern    = '';
+            $classPattern  = '';
             $classDefaults = array();
             foreach (getPhpdocTags($rClass->getDocComment()) as $annotation) {
                 if ($annotation['name'] != 'route') {
@@ -60,7 +60,7 @@ class RouteProvider
                     throw new \Exception("Class {$class} has empty @route annotation");
                 }
 
-                $classPattern    = array_shift($annotation['args']);
+                $classPattern  = array_shift($annotation['args']);
                 $classDefaults = $annotation['args'];
             }
 
