@@ -1,6 +1,6 @@
 <?php
 
-namespace Bravicility;
+namespace Bravicility\Failure;
 
 // Example:
 // PHP_FailureHandler::setup(function($error){
@@ -13,6 +13,8 @@ namespace Bravicility;
 
 // Get the example log in human-readable format (without the JSON column):
 // cut -f1-3 errors.log
+
+use Bravicility\Failure\FailureException;
 
 class FailureHandler
 {
