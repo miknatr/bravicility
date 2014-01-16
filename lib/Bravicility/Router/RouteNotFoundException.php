@@ -1,6 +1,6 @@
 <?php
 
-namespace Bravicility\Http;
+namespace Bravicility\Router;
 
 class RouteNotFoundException extends \Exception
 {

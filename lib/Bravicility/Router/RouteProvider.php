@@ -1,24 +1,20 @@
 <?php
 
-namespace Bravicility\Http;
+namespace Bravicility\Router;
 
 class RouteProvider
 {
     /** @var string[] */
     private $controllerDirs = array();
-    private $cacheDir;
 
-    public function __construct(array $controllerDirs, $cacheDir)
+    public function __construct(array $controllerDirs)
     {
         $this->controllerDirs = $controllerDirs;
-        $this->cacheDir       = $cacheDir;
     }
 
     /** @return array */
     public function generateRoutes()
     {
-        // STOPPER кэширование
-
         $controllerFiles = array();
         foreach ($this->controllerDirs as $dir) {
             $controllerFiles = array_merge($controllerFiles, getFilesRecursively($dir));

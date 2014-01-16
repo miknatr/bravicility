@@ -5,17 +5,23 @@ namespace Bravicility\Http;
 class Request
 {
     protected $method;
-    protected $uri;
-    protected $get = array();
-    protected $post = array();
+    protected $urlPath;
+    protected $get     = array();
+    protected $post    = array();
     protected $options = array();
+    protected $parsed  = array();
     protected $rawBody;
-    protected $parsed   = array();
 
-    public function __construct($method = 'GET', $uri = '/', array $get = array(), array $post = array(), $rawBody = '')
+    public static function createFromGlobals()
+    {
+        return new static($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'], $_GET, $_POST, file_get_contents('php://input'));
+    }
+    
+    
+    public function __construct($method = 'GET', $urlPath = '/', array $get = array(), array $post = array(), $rawBody = '')
     {
         $this->method  = $method;
-        $this->uri     = explode('?', $uri, 2)[0];
+        $this->urlPath = explode('?', $urlPath, 2)[0];
         $this->get     = $get;
         $this->post    = $post;
         $this->rawBody = $rawBody;
@@ -33,9 +39,9 @@ class Request
         parse_str($this->rawBody, $this->parsed);
     }
 
-    public function getUri()
+    public function getUrlPath()
     {
-        return $this->uri;
+        return $this->urlPath;
     }
 
     public function getMethod()
