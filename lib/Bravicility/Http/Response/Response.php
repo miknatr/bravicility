@@ -78,6 +78,15 @@ class Response
         $this->content    = $content;
     }
 
+    protected $cookieToSet = array();
+    public function setCookie($name, $value = null, $expire = 0 , $path = '/', $domain = null, $secure = false, $httpOnly = false)
+    {
+        // STOPPER хуета
+        $this->cookieToSet[] = func_get_args();
+
+        return $this;
+    }
+
     public function send()
     {
         if (!isset(static::$statusCodes[$this->statusCode])) {
@@ -85,6 +94,10 @@ class Response
         }
 
         header(sprintf("HTTP/1.1 %s %s", $this->statusCode, static::$statusCodes[$this->statusCode]));
+
+        foreach ($this->cookieToSet as $cookieArgs) {
+            call_user_func_array('setcookie', $cookieArgs);
+        }
 
         foreach ($this->headers as $header) {
             header($header);

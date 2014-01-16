@@ -10,20 +10,22 @@ class Request
     protected $post    = array();
     protected $options = array();
     protected $parsed  = array();
+    protected $cookie    = array();
     protected $rawBody;
 
     public static function createFromGlobals()
     {
-        return new static($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'], $_GET, $_POST, file_get_contents('php://input'));
+        return new static($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'], $_GET, $_POST, $_COOKIE, file_get_contents('php://input'));
     }
     
     
-    public function __construct($method = 'GET', $urlPath = '/', array $get = array(), array $post = array(), $rawBody = '')
+    public function __construct($method = 'GET', $urlPath = '/', array $get = array(), array $post = array(), array $cookie = array(), $rawBody = '')
     {
         $this->method  = $method;
         $this->urlPath = explode('?', $urlPath, 2)[0];
         $this->get     = $get;
         $this->post    = $post;
+        $this->cookie  = $cookie;
         $this->rawBody = $rawBody;
     }
 
@@ -67,6 +69,16 @@ class Request
     public function allPost()
     {
         return $this->post;
+    }
+
+    public function cookie($name, $default = null)
+    {
+        return isset($this->cookie[$name]) ? $this->cookie[$name] : $default;
+    }
+
+    public function allCookie()
+    {
+        return $this->cookie;
     }
 
     public function option($name, $default = null)
