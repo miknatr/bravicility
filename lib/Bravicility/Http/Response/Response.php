@@ -81,7 +81,6 @@ class Response
     protected $cookieToSet = array();
     public function setCookie($name, $value = null, $expire = 0 , $path = '/', $domain = null, $secure = false, $httpOnly = false)
     {
-        // STOPPER хуета
         $this->cookieToSet[] = func_get_args();
 
         return $this;
