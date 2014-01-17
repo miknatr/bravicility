@@ -2,18 +2,63 @@
 
 namespace Bravicility\Router;
 
-use Bravicility\Http\Request;
-
 class Router
 {
-    /** @var string[] */
-    private $controllerDirs = array();
-    private $routesCacheDir;
+    /**
+     * @var array
+     * array(
+     *     array(
+     *         'method'   => 'GET',
+     *         'regexp'   => '#^/$#',
+     *         'callback' => array('\\Controller\\IndexController', 'index'),
+     *         'defaults' => array('var' => 'val'),
+     *     ),
+     * ),
+     */
+    private $routeRules;
 
-    public function __construct(array $controllerDirs, $routesCacheDir)
+    public function __construct(array $controllerDirs, $routesCacheDir, $autoRefreshCache = true)
     {
-        $this->controllerDirs = $controllerDirs;
-        $this->routesCacheDir = $routesCacheDir;
+        $cacheTimeFile = $routesCacheDir . '/cache_time';
+
+        $needRefresh = false;
+        if (!file_exists($routesCacheDir)) {
+            mkdir($routesCacheDir);
+            $needRefresh = true;
+        } elseif ($autoRefreshCache) {
+            $cacheTime = file_exists($cacheTimeFile) ? file_get_contents($cacheTimeFile) : 0;
+            if ($cacheTime < static::getLastControllerModTime($controllerDirs)) {
+                $needRefresh = true;
+            }
+        }
+
+        $rulesFile = $routesCacheDir . '/route_rules';
+
+        if ($needRefresh) {
+            file_put_contents($cacheTimeFile, static::getLastControllerModTime($controllerDirs));
+            $routeRules = (new RouteProvider($controllerDirs, $routesCacheDir))->generateRoutes();
+            file_put_contents($rulesFile, serialize($routeRules));
+        }
+
+        $this->routeRules = unserialize(file_get_contents($rulesFile));
+    }
+
+    protected static function getLastControllerModTime(array $controllerDirs)
+    {
+        $controllerFiles = array();
+        foreach ($controllerDirs as $dir) {
+            $controllerFiles = array_merge($controllerFiles, getFilesRecursively($dir));
+        }
+
+        $lastTime = 0;
+        foreach ($controllerFiles as $file) {
+            $fileModTime = filemtime($file);
+            if ($fileModTime > $lastTime) {
+                $lastTime = $fileModTime;
+            }
+        }
+        
+        return $lastTime;
     }
 
     /**
@@ -23,35 +68,12 @@ class Router
      */
     public function route($method, $urlPath)
     {
-        // STOPPER кэширование
-        $routeRules = (new RouteProvider($this->controllerDirs, $this->routesCacheDir))->generateRoutes();
-
-        return static::findMatchingRoute($routeRules, $method, $urlPath);
-    }
-
-    /**
-     * @param array $routeRules
-     * array(
-     *     array(
-     *         'method'   => 'GET',
-     *         'regexp'   => '#^/$#',
-     *         'callback' => array('\\Controller\\IndexController', 'index'),
-     *         'defaults' => array('var' => 'val'),
-     *     ),
-     * ),
-     * @param $method
-     * @param string $uri without get parameters
-     * @throws RouteNotFoundException
-     * @return Route
-     */
-    protected static function findMatchingRoute(array $routeRules, $method, $uri)
-    {
-        foreach ($routeRules as $rule) {
+        foreach ($this->routeRules as $rule) {
             if ($method != $rule['method']) {
                 continue;
             }
 
-            if (!preg_match($rule['regexp'], $uri, $match)) {
+            if (!preg_match($rule['regexp'], $urlPath, $match)) {
                 continue;
             }
 
