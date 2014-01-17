@@ -17,8 +17,8 @@ class Request
     {
         return new static($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'], $_GET, $_POST, $_COOKIE, file_get_contents('php://input'));
     }
-    
-    
+
+
     public function __construct($method = 'GET', $urlPath = '/', array $get = array(), array $post = array(), array $cookie = array(), $rawBody = '')
     {
         $this->method  = $method;
@@ -39,6 +39,16 @@ class Request
     public function parseBodyAsUrlEncoded()
     {
         parse_str($this->rawBody, $this->parsed);
+    }
+
+    // TODO название
+    public function getLocation()
+    {
+        $location = $this->urlPath;
+        if (!empty($this->get)) {
+            $location .= '?' . http_build_query($this->get);
+        }
+        return $location;
     }
 
     public function getUrlPath()
