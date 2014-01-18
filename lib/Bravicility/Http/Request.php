@@ -10,7 +10,7 @@ class Request
     protected $post    = array();
     protected $options = array();
     protected $parsed  = array();
-    protected $cookie    = array();
+    protected $cookie  = array();
     protected $rawBody;
 
     public static function createFromGlobals()
