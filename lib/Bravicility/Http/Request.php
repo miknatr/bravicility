@@ -104,6 +104,7 @@ class Request
     public function addOption($name, $value)
     {
         $this->options[$name] = $value;
+
         return $this;
     }
 
@@ -112,12 +113,14 @@ class Request
         foreach ($options as $name => $value) {
             $this->options[$name] = $value;
         }
+
         return $this;
     }
 
     public function setOptions($options)
     {
         $this->options = $options;
+        
         return $this;
     }
 }
