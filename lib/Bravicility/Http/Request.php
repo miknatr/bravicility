@@ -107,6 +107,14 @@ class Request
         return $this;
     }
 
+    public function addOptions(array $options)
+    {
+        foreach ($options as $name => $value) {
+            $this->options[$name] = $value;
+        }
+        return $this;
+    }
+
     public function setOptions($options)
     {
         $this->options = $options;
