@@ -81,7 +81,22 @@ class Response
     protected $cookieToSet = array();
     public function setCookie($name, $value = null, $expire = 0 , $path = '/', $domain = null, $secure = false, $httpOnly = false)
     {
-        $this->cookieToSet[] = func_get_args();
+        $this->cookieToSet[] = array(
+            'name'     => $name,
+            'value'    => $value,
+            'expire'   => $expire,
+            'path'     => $path,
+            'domain'   => $domain,
+            'secure'   => $secure,
+            'httpOnly' => $httpOnly,
+        );
+
+        return $this;
+    }
+
+    public function removeCookie($name, $path = '/', $domain = null, $secure = false, $httpOnly = false)
+    {
+        $this->setCookie($name, null, 0, $path, $domain, $secure, $httpOnly);
 
         return $this;
     }
@@ -95,7 +110,7 @@ class Response
         header(sprintf("HTTP/1.1 %s %s", $this->statusCode, static::$statusCodes[$this->statusCode]));
 
         foreach ($this->cookieToSet as $cookieArgs) {
-            call_user_func_array('setcookie', $cookieArgs);
+            setcookie($cookieArgs['name'], $cookieArgs['value'], $cookieArgs['expire'], $cookieArgs['path'], $cookieArgs['domain'], $cookieArgs['secure'], $cookieArgs['httpOnly']);
         }
 
         foreach ($this->headers as $header) {

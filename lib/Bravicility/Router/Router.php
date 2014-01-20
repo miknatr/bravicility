@@ -92,6 +92,6 @@ class Router
             return $route;
         }
 
-        throw new RouteNotFoundException();
+        throw new RouteNotFoundException("Route not found for $method $urlPath");
     }
 }
