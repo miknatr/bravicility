@@ -124,6 +124,6 @@ class RouteProvider
             }
         }
 
-        return "#^{$regexp}$#";
+        return "#^{$regexp}/?$#";
     }
 }
