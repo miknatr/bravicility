@@ -74,7 +74,7 @@ class RouteProvider
                     // TODO файлы и строки/методы в тексты исключений
 
                     if (count($annotation['args']) < 2) {
-                        throw new \Exception('Incorrect annotation: ' . $annotation['string']);
+                        throw new \Exception('Incorrect annotation: ' . $annotation['string']. ' (syntax: @route GET /blah)');
                     }
 
                     $method = array_shift($annotation['args']);
@@ -82,7 +82,8 @@ class RouteProvider
                         throw new \Exception('Incorrect HTTP method in annotation: ' . $annotation['string']);
                     }
 
-                    $pattern = $classPattern . array_shift($annotation['args']);
+                    // class route "/blah" and method route "/" should give "/blah", not "/blah/"
+                    $pattern = rtrim($classPattern . array_shift($annotation['args']), '/');
 
                     $defaultDefs = array_merge($classDefaults, $annotation['args']);
 
