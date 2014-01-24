@@ -81,6 +81,15 @@ class Request
         return $this->post;
     }
 
+    public function filterPostByFieldList(array $fieldList)
+    {
+        $r = array();
+        foreach ($fieldList as $fieldName) {
+            $r[$fieldName] = $this->post($fieldName);
+        }
+        return $r;
+    }
+
     public function cookie($name, $default = null)
     {
         return isset($this->cookie[$name]) ? $this->cookie[$name] : $default;
