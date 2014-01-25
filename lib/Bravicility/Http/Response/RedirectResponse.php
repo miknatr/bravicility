@@ -9,7 +9,7 @@ class RedirectResponse extends Response
     public function __construct($location)
     {
         if (!preg_match('#^https?://#', $location) && substr($location, 0, 1) != '/') {
-            throw new \LogicException('Redirect location must be absolute, "' . $location . '" is not');
+            throw new \LogicException('Redirect location must be absolute or begin with "/", "' . $location . '" is not');
         }
 
         parent::__construct(302);
