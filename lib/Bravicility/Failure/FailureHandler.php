@@ -14,16 +14,14 @@ namespace Bravicility\Failure;
 // Get the example log in human-readable format (without the JSON column):
 // cut -f1-3 errors.log
 
-use Bravicility\Failure\FailureException;
-
 class FailureHandler
 {
     private static $callback;
-    private static $disable_shutdown_handler = false;
+    private static $disableShutdownHandler = false;
 
     // long arrays in traces will be replaced by their count
-    public static $max_array_count = 5;
-    public static $keep_string_length = 100;
+    public static $maxArrayCount = 5;
+    public static $keepStringLength = 100;
 
     /**
      * Installs a callback as a handler for all failures
@@ -55,82 +53,14 @@ class FailureHandler
      *
      * @param callback $callback
      */
-    public static function setup($callback)
+    public static function setup(callable $callback)
     {
         static::$callback = $callback;
 
         $class = get_called_class();
-        set_exception_handler(array($class, 'uncaught_exception'));
-        set_error_handler(array($class, 'error'));
-        register_shutdown_function(array($class, 'shutdown'));
-    }
-
-    private static function clean_trace_args($trace)
-    {
-        foreach ($trace as &$level) {
-            unset($level['object']);
-            if (!empty($level['args'])) {
-                foreach ($level['args'] as &$arg) {
-                    $arg = static::normalize_data($arg);
-                }
-            }
-        }
-
-        return $trace;
-    }
-
-    public static function normalize_data($arg)
-    {
-        if (is_array($arg)) {
-            if (count($arg) > static::$max_array_count) {
-                $arg = '<array ' . count($arg) . '>';
-            } else {
-                $tmp = array();
-                foreach ($arg as $k => $v) {
-                    // we don't want to go deep into the array
-                    if (is_array($v) && $v !== array())
-                        $v = '<array ' . count($v) . '>';
-                    $tmp[static::normalize_data($k)] = static::normalize_data($v);
-                }
-                $arg = $tmp;
-            }
-        } // object => class + toString
-        else if (is_object($arg)) {
-            $s = '<' . get_class($arg);
-            if (method_exists($arg, '__toString'))
-                $s .= ' ' . static::normalize_data((string)$arg);
-            $s .= '>';
-            $arg = $s;
-        } else if (is_string($arg)) {
-            if (strlen($arg) > static::$keep_string_length)
-                $arg = substr($arg, 0, static::$keep_string_length) . '... (' . strlen($arg) . ' bytes)';
-        }
-
-        return $arg;
-    }
-
-    private static function exception2error(\Exception $e, $wrapped_in = array())
-    {
-        $trace = static::clean_trace_args($e->getTrace());
-        array_unshift($trace, array(
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-        ));
-
-        $error = array(
-            'exception' => get_class($e),
-            'type'      => $e->getCode(),
-            'message'   => $e->getMessage(),
-            'trace'     => $trace,
-        );
-        if ($wrapped_in)
-            $error['exception_wrapped'] = $wrapped_in;
-
-        $prev = $e->getPrevious();
-        if ($prev)
-            return static::exception2error($prev, $error);
-
-        return $error;
+        set_exception_handler(array($class, 'handleUncaughtException'));
+        set_error_handler(array($class, 'handleError'));
+        register_shutdown_function(array($class, 'handleShutdownIfFatalError'));
     }
 
     /**
@@ -143,19 +73,20 @@ class FailureHandler
      *
      * @param \Exception $exception
      */
-    public static function handle_exception(\Exception $exception)
+    public static function handleExceptionManually(\Exception $exception)
     {
-        if (static::$callback)
-            call_user_func(static::$callback, static::exception2error($exception));
+        if (static::$callback) {
+            call_user_func(static::$callback, static::convertExceptionToError($exception));
+        }
     }
 
-    public static function uncaught_exception(\Exception $exception)
+    public static function handleUncaughtException(\Exception $exception)
     {
-        call_user_func(static::$callback, static::exception2error($exception));
+        call_user_func(static::$callback, static::convertExceptionToError($exception));
 
         // We need to disable shutdown func so it won't report 'Uncaught exception' which is a fatal error.
         // Unfortunately, there's no unregister_shutdown_function, so we emulate it.
-        static::$disable_shutdown_handler = true;
+        static::$disableShutdownHandler = true;
 
         // We cannot just return false from the exception handler to run the default one.
         // Instead, we have to remove this handler and throw the exception again.
@@ -165,10 +96,10 @@ class FailureHandler
         throw new FailureException($exception->getMessage(), $exception->getCode(), $exception);
     }
 
-    public static function error($type, $message)
+    public static function handleError($type, $message)
     {
         if (error_reporting() & $type) {
-            $trace = static::clean_trace_args(debug_backtrace());
+            $trace = static::cleanTraceArgs(debug_backtrace());
             if (!isset($trace[0]['line'])) {
                 // For errors originating in native functions (incorrect arguments, etc),
                 // the trace[0] will not have the file/line, only FailureHandler::error() call.
@@ -191,10 +122,11 @@ class FailureHandler
     }
 
     // catching fatal errors
-    public static function shutdown()
+    public static function handleShutdownIfFatalError()
     {
-        if (static::$disable_shutdown_handler)
+        if (static::$disableShutdownHandler) {
             return;
+        }
 
         $error = error_get_last();
         // We should only react to fatal errors,
@@ -210,5 +142,75 @@ class FailureHandler
             unset($error['file'], $error['line']);
             call_user_func(static::$callback, $error);
         }
+    }
+
+    private static function cleanTraceArgs($trace)
+    {
+        foreach ($trace as &$level) {
+            unset($level['object']);
+            if (!empty($level['args'])) {
+                foreach ($level['args'] as &$arg) {
+                    $arg = static::normalizeData($arg);
+                }
+            }
+        }
+
+        return $trace;
+    }
+
+    private static function normalizeData($arg)
+    {
+        if (is_array($arg)) {
+            if (count($arg) > static::$maxArrayCount) {
+                $arg = '<array ' . count($arg) . '>';
+            } else {
+                $tmp = array();
+                foreach ($arg as $k => $v) {
+                    // we don't want to go deep into the array
+                    if (is_array($v) && $v !== array())
+                        $v = '<array ' . count($v) . '>';
+                    $tmp[static::normalizeData($k)] = static::normalizeData($v);
+                }
+                $arg = $tmp;
+            }
+        } // object => class + toString
+        else if (is_object($arg)) {
+            $s = '<' . get_class($arg);
+            if (method_exists($arg, '__toString'))
+                $s .= ' ' . static::normalizeData((string)$arg);
+            $s .= '>';
+            $arg = $s;
+        } else if (is_string($arg)) {
+            if (strlen($arg) > static::$keepStringLength)
+                $arg = substr($arg, 0, static::$keepStringLength) . '... (' . strlen($arg) . ' bytes)';
+        }
+
+        return $arg;
+    }
+
+    private static function convertExceptionToError(\Exception $e, $wrapped_in = array())
+    {
+        $trace = static::cleanTraceArgs($e->getTrace());
+        array_unshift($trace, array(
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ));
+
+        $error = array(
+            'exception' => get_class($e),
+            'type'      => $e->getCode(),
+            'message'   => $e->getMessage(),
+            'trace'     => $trace,
+        );
+        if ($wrapped_in) {
+            $error['exception_wrapped'] = $wrapped_in;
+        }
+
+        $prev = $e->getPrevious();
+        if ($prev) {
+            return static::convertExceptionToError($prev, $error);
+        }
+
+        return $error;
     }
 }
