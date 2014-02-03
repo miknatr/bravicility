@@ -23,6 +23,12 @@ function dt2dtz($dt)
     return date('c', strtotime($dt));
 }
 
+function formatMoney($amount)
+{
+    $amount = (float) str_replace(',', '.', $amount);
+    return number_format($amount, 2, '.', '');
+}
+
 function getPhpdocTags($phpdoc)
 {
     preg_match_all(
