@@ -11,24 +11,30 @@ class Request
     protected $options = array();
     protected $parsed  = array();
     protected $cookie  = array();
+    protected $server  = array();
     protected $rawBody;
 
     public static function createFromGlobals()
     {
-        return new static($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'], $_GET, $_POST, $_COOKIE, file_get_contents('php://input'));
+        return new static($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI'], $_GET, $_POST, $_COOKIE, $_SERVER, file_get_contents('php://input'));
     }
 
 
-    public function __construct($method = 'GET', $urlPath = '/', array $get = array(), array $post = array(), array $cookie = array(), $rawBody = '')
+    public function __construct($method = 'GET', $urlPath = '/', array $get = array(), array $post = array(), array $cookie = array(), array $server = array(), $rawBody = '')
     {
         $this->method  = $method;
         $this->urlPath = explode('?', $urlPath, 2)[0];
         $this->get     = $get;
         $this->post    = $post;
         $this->cookie  = $cookie;
+        $this->server  = $server;
         $this->rawBody = $rawBody;
     }
 
+    public function getUserAgent()
+    {
+        return isset($this->server['HTTP_USER_AGENT']) ? $this->server['HTTP_USER_AGENT'] : null;
+    }
 
     public function parseBodyAsJson()
     {
