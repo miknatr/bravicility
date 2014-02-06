@@ -31,9 +31,28 @@ class Request
         $this->rawBody = $rawBody;
     }
 
+    protected $trustedProxies = array();
+    public function setTrustedProxies(array $trustedProxies)
+    {
+        $this->trustedProxies = $trustedProxies;
+    }
+
     public function getUserAgent()
     {
-        return isset($this->server['HTTP_USER_AGENT']) ? $this->server['HTTP_USER_AGENT'] : null;
+        return $this->server('HTTP_USER_AGENT');
+    }
+
+    public function getClientIp()
+    {
+        $ip = $this->server['REMOTE_ADDR'];
+
+        $clientIps = array_map('trim', explode(',', $this->server('X_FORWARDED_FOR')));
+
+        $clientIps[] = $ip;
+
+        $clientIps = array_diff($clientIps, !$this->trustedProxies ? array($ip) : $this->trustedProxies);
+
+        return array_pop($clientIps);
     }
 
     public function parseBodyAsJson()
@@ -137,5 +156,10 @@ class Request
         $this->options = $options;
         
         return $this;
+    }
+
+    public function server($name, $default = null)
+    {
+        return isset($this->server[$name]) ? $this->server[$name] : $default;
     }
 }
