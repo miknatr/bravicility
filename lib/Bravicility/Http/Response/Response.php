@@ -101,6 +101,13 @@ class Response
         return $this;
     }
 
+    public function addHeader($header)
+    {
+        $this->headers[] = $header;
+
+        return $this;
+    }
+
     public function send()
     {
         if (!isset(static::$statusCodes[$this->statusCode])) {
