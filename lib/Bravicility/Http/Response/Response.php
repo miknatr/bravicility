@@ -126,4 +126,22 @@ class Response
 
         echo $this->content;
     }
-} 
+
+    public function isCacheable($statusCode, array $headers)
+    {
+        return $this->statusCode == $statusCode
+            && empty($this->cookieToSet)
+            && count(array_diff($this->headers, $headers)) == 0
+        ;
+    }
+
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    public function getContent()
+    {
+        return $this->content;
+    }
+}
