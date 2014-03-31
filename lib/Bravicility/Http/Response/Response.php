@@ -120,18 +120,18 @@ class Response
             setcookie($cookieArgs['name'], $cookieArgs['value'], $cookieArgs['expire'], $cookieArgs['path'], $cookieArgs['domain'], $cookieArgs['secure'], $cookieArgs['httpOnly']);
         }
 
-        foreach ($this->headers as $header) {
+        foreach ($this->getHeaders() as $header) {
             header($header);
         }
 
-        echo $this->content;
+        echo $this->getContent();
     }
 
     public function isCacheable($statusCode, array $headers)
     {
         return $this->statusCode == $statusCode
             && empty($this->cookieToSet)
-            && count(array_diff($this->headers, $headers)) == 0
+            && count(array_diff($this->getHeaders(), $headers)) == 0
         ;
     }
 
