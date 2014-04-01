@@ -2,7 +2,7 @@
 
 namespace Bravicility\Http\Response;
 
-class JsonCallbackResponse extends Response
+class JsonpResponse extends Response
 {
     public function __construct($json, $callback)
     {
