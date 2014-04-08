@@ -35,8 +35,8 @@ class Router
         $rulesFile = $routesCacheDir . '/route_rules';
 
         if ($needRefresh) {
-            file_put_contents($cacheTimeFile, static::getLastControllerModTime($controllerDirs));
             $routeRules = (new RouteProvider($controllerDirs, $routesCacheDir))->generateRoutes();
+            file_put_contents($cacheTimeFile, static::getLastControllerModTime($controllerDirs));
             file_put_contents($rulesFile, serialize($routeRules));
         }
 
@@ -57,7 +57,7 @@ class Router
                 $lastTime = $fileModTime;
             }
         }
-        
+
         return $lastTime;
     }
 
