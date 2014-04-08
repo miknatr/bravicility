@@ -44,13 +44,21 @@ class Request
 
     public function getClientIp()
     {
-        $ip = $this->server['REMOTE_ADDR'];
+        $ip = $this->server('REMOTE_ADDR');
 
-        $clientIps = array_map('trim', explode(',', $this->server('X_FORWARDED_FOR')));
+        if (empty($this->trustedProxies)) {
+            return $ip;
+        }
 
+        $forwardedFor = $this->server('X_FORWARDED_FOR');
+        if (!$forwardedFor) {
+            return $ip;
+        }
+
+        $clientIps = array_map('trim', explode(',', $forwardedFor));
         $clientIps[] = $ip;
 
-        $clientIps = array_diff($clientIps, !$this->trustedProxies ? array($ip) : $this->trustedProxies);
+        $clientIps = array_diff($clientIps, empty($this->trustedProxies) ? array($ip) : $this->trustedProxies);
 
         return array_pop($clientIps);
     }
@@ -154,7 +162,7 @@ class Request
     public function setOptions($options)
     {
         $this->options = $options;
-        
+
         return $this;
     }
 
