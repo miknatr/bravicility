@@ -42,6 +42,15 @@ class Request
         return $this->server('HTTP_USER_AGENT');
     }
 
+    public function getContentType()
+    {
+        $header = $this->server('CONTENT_TYPE');
+        if ($header === null) {
+            $header = $this->server('HTTP_CONTENT_TYPE');
+        }
+        return $header;
+    }
+
     public function getClientIp()
     {
         $ip = $this->server('REMOTE_ADDR');
@@ -67,11 +76,13 @@ class Request
     {
         $arr = json_decode($this->getRawBody(), true);
         $this->parsed = is_array($arr) ? $arr : array();
+        return $this->parsed;
     }
 
     public function parseBodyAsUrlEncoded()
     {
         parse_str($this->getRawBody(), $this->parsed);
+        return $this->parsed;
     }
 
     // TODO название
