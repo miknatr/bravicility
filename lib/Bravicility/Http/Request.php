@@ -65,19 +65,19 @@ class Request
 
     public function parseBodyAsJson()
     {
-        $arr = json_decode($this->rawBody, true);
+        $arr = json_decode($this->getRawBody(), true);
         $this->parsed = is_array($arr) ? $arr : array();
     }
 
     public function parseBodyAsUrlEncoded()
     {
-        parse_str($this->rawBody, $this->parsed);
+        parse_str($this->getRawBody(), $this->parsed);
     }
 
     // TODO название
     public function getLocation()
     {
-        $location = $this->urlPath;
+        $location = $this->getUrlPath();
         if (!empty($this->get)) {
             $location .= '?' . http_build_query($this->get);
         }
