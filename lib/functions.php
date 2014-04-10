@@ -214,3 +214,49 @@ function pd()
     call_user_func_array('p', $args);
     die((defined('STDIN') ? "\n\n" : '<br><br>') . 'DIE');
 }
+
+/**
+ * Special format for lists:
+ * 'cars' => array(
+ *     '__list'      => true,
+ *     '__item_name' => 'car',
+ *     '__items'     => array($item1, $item2...),
+ * ),
+ * @param array $data
+ * @param string $encoding
+ * @return string
+ */
+function buildXmlFromArray(array $data, $encoding = 'utf-8')
+{
+    $xml = '<?xml version="1.0" encoding="' . $encoding . '"?>';
+    $xml .= buildXmlFromArrayWithoutPrefix($data);
+    return $xml;
+}
+
+function buildXmlFromArrayWithoutPrefix(array $data)
+{
+    $xml = '';
+
+    foreach ($data as $k => $v) {
+        if (is_array($v)) {
+            $xml .= "<$k>";
+            if (isset($v['__list'])) {
+                foreach ($v['__items'] as $vItem) {
+                    $xml .= "<" . $v['__item_name'] . ">";
+                    if (!is_array($vItem)) {
+                        throw new \Exception('Invalid data');
+                    }
+                    $xml .= buildXmlFromArrayWithoutPrefix($vItem);
+                    $xml .= "</" . $v['__item_name'] . ">";
+                }
+            } else {
+                $xml .= buildXmlFromArrayWithoutPrefix($v);
+            }
+            $xml .= "</$k>";
+        } else {
+            $xml .= "<$k>" . htmlentities($v, ENT_XML1) . "</$k>";
+        }
+    }
+
+    return $xml;
+}
