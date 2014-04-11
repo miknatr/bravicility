@@ -182,6 +182,11 @@ class Request
         return isset($this->server[$name]) ? $this->server[$name] : $default;
     }
 
+    public function allServer()
+    {
+        return $this->server;
+    }
+
     public function getRawBody()
     {
         return $this->rawBody;
