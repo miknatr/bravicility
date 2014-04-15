@@ -20,7 +20,7 @@ class FailureHandler
     private static $disableShutdownHandler = false;
 
     // long arrays in traces will be replaced by their count
-    public static $maxArrayCount = 5;
+    public static $maxArrayCount    = 5;
     public static $keepStringLength = 100;
 
     /**
@@ -167,22 +167,24 @@ class FailureHandler
                 $tmp = array();
                 foreach ($arg as $k => $v) {
                     // we don't want to go deep into the array
-                    if (is_array($v) && $v !== array())
+                    if (is_array($v) && $v !== array()) {
                         $v = '<array ' . count($v) . '>';
+                    }
                     $tmp[static::normalizeData($k)] = static::normalizeData($v);
                 }
                 $arg = $tmp;
             }
-        } // object => class + toString
-        else if (is_object($arg)) {
+        } elseif (is_object($arg)) { // object => class + toString
             $s = '<' . get_class($arg);
-            if (method_exists($arg, '__toString'))
-                $s .= ' ' . static::normalizeData((string)$arg);
+            if (method_exists($arg, '__toString')) {
+                $s .= ' ' . static::normalizeData((string) $arg);
+            }
             $s .= '>';
             $arg = $s;
-        } else if (is_string($arg)) {
-            if (strlen($arg) > static::$keepStringLength)
+        } elseif (is_string($arg)) {
+            if (strlen($arg) > static::$keepStringLength) {
                 $arg = substr($arg, 0, static::$keepStringLength) . '... (' . strlen($arg) . ' bytes)';
+            }
         }
 
         return $arg;

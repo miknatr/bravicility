@@ -14,9 +14,9 @@ class FailureInfoResponse extends TextResponse
     protected function drawError(array $error)
     {
         return
-            $this->showSeverity($error) . ': ' . $error['message'] . "\n"
+            "\n\n"
+            . $this->showSeverity($error) . ': ' . $error['message'] . "\n"
             . $this->dumpTrace($error)
-            . "\n"
         ;
     }
 
@@ -170,8 +170,13 @@ class FailureInfoResponse extends TextResponse
             return '[' . substr($s, 0, -2) . ']';
         }
 
-        if (is_string($var) && preg_match('#^<(\w+\\\\)*\w+>$#', $var)) {
-            return $var;
+        if (is_string($var)) {
+            if (preg_match('#^<(?:\w+\\\\)*\w+>$#', $var)) {
+                return $var;
+            }
+            if (preg_match('#^<array \d+>$#', $var)) {
+                return $var;
+            }
         }
 
         return var_export($var, true);
