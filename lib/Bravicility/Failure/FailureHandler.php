@@ -16,8 +16,8 @@ namespace Bravicility\Failure;
 
 class FailureHandler
 {
-    private static $callback;
-    private static $disableShutdownHandler = false;
+    protected static $callback;
+    protected static $disableShutdownHandler = false;
 
     // long arrays in traces will be replaced by their count
     public static $maxArrayCount    = 5;
@@ -144,7 +144,7 @@ class FailureHandler
         }
     }
 
-    private static function cleanTraceArgs($trace)
+    protected static function cleanTraceArgs($trace)
     {
         foreach ($trace as &$level) {
             unset($level['object']);
@@ -158,7 +158,7 @@ class FailureHandler
         return $trace;
     }
 
-    private static function normalizeData($arg)
+    protected static function normalizeData($arg)
     {
         if (is_array($arg)) {
             if (count($arg) > static::$maxArrayCount) {
@@ -190,7 +190,7 @@ class FailureHandler
         return $arg;
     }
 
-    private static function convertExceptionToError(\Exception $e, $wrapped_in = array())
+    protected static function convertExceptionToError(\Exception $e, $wrapped_in = array())
     {
         $trace = static::cleanTraceArgs($e->getTrace());
         array_unshift($trace, array(
