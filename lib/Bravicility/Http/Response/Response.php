@@ -132,8 +132,8 @@ class Response
 
     public function setStatusCode($statusCode)
     {
-        if (!isset(static::$statusCodes[$this->statusCode])) {
-            throw new \Exception("Status code '{$this->statusCode}' is not allowed");
+        if (!isset(static::$statusCodes[$statusCode])) {
+            throw new \Exception("Status code '{$statusCode}' is not allowed");
         }
         $this->statusCode = $statusCode;
         return $this;

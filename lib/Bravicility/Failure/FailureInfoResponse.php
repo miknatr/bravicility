@@ -108,7 +108,7 @@ class FailureInfoResponse extends TextResponse
 
     protected function showTraceElement($trace, $error)
     {
-        $file = $trace['file'];
+        $file = isset($trace['file']) ? $trace['file'] : null;
         unset($trace['file'], $trace['line']);
 
         if (isset($trace['function'])) {
