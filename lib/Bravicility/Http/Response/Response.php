@@ -4,7 +4,142 @@ namespace Bravicility\Http\Response;
 
 class Response
 {
-    static protected $statusCodes = array(
+    public function __construct($statusCode, $content = '')
+    {
+        $this->setStatusCode($statusCode);
+        $this->setContent($content);
+    }
+
+    public function send()
+    {
+        $statusCode = $this->getStatusCode();
+        header('HTTP/1.1 ' . $statusCode .' ' . static::$statusCodes[$statusCode]);
+
+        foreach ($this->getCookies() as $cookieArgs) {
+            setcookie(
+                $cookieArgs['name'],
+                $cookieArgs['value'],
+                $cookieArgs['expire'],
+                $cookieArgs['path'],
+                $cookieArgs['domain'],
+                $cookieArgs['secure'],
+                $cookieArgs['httpOnly']
+            );
+        }
+
+        foreach ($this->getHeaders() as $header) {
+            header($header);
+        }
+
+        echo $this->getContent();
+    }
+
+    public function isCacheable($statusCode, array $headers)
+    {
+        return $this->getStatusCode() == $statusCode
+            && $this->getCookies() === array()
+            && count(array_diff($this->getHeaders(), $headers)) == 0
+        ;
+    }
+
+
+    //
+    // CONTENT
+    //
+
+    protected $content = '';
+
+    public function getContent()
+    {
+        return $this->content;
+    }
+
+    public function setContent($content)
+    {
+        $this->content = $content;
+        return $this;
+    }
+
+
+    //
+    // HEADERS
+    //
+
+    protected $headers = array();
+
+    public function addHeader($header)
+    {
+        $this->headers[] = $header;
+        return $this;
+    }
+
+    public function requireBasicAuth($description)
+    {
+        $this->setStatusCode(401);
+        $this->addHeader('WWW-Authenticate: Basic realm="' . urlencode($description) . '"');
+        return $this;
+    }
+
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
+
+    //
+    // COOKIES
+    //
+
+    protected $cookies = array();
+    public function setCookie($name, $value = null, $expire = 0 , $path = '/', $domain = null, $secure = false, $httpOnly = false)
+    {
+        $this->cookies[] = array(
+            'name'     => $name,
+            'value'    => $value,
+            'expire'   => $expire,
+            'path'     => $path,
+            'domain'   => $domain,
+            'secure'   => $secure,
+            'httpOnly' => $httpOnly,
+        );
+
+        return $this;
+    }
+
+    public function removeCookie($name, $path = '/', $domain = null, $secure = false, $httpOnly = false)
+    {
+        $this->setCookie($name, null, 0, $path, $domain, $secure, $httpOnly);
+
+        return $this;
+    }
+
+    public function getCookies()
+    {
+        return $this->cookies;
+    }
+
+
+    //
+    // STATUS CODES
+    //
+
+    protected $statusCode;
+
+    public function getStatusCode()
+    {
+        return $this->statusCode;
+    }
+
+    public function setStatusCode($statusCode)
+    {
+        if (!isset(static::$statusCodes[$this->statusCode])) {
+            throw new \Exception("Status code '{$this->statusCode}' is not allowed");
+        }
+        $this->statusCode = $statusCode;
+        return $this;
+    }
+
+    protected static $statusCodes = array(
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing',            // RFC2518
@@ -66,82 +201,4 @@ class Response
         510 => 'Not Extended',                                                // RFC2774
         511 => 'Network Authentication Required',                             // RFC6585
     );
-
-    protected $statusCode = 200;
-    protected $headers = array();
-    protected $content = '';
-
-    public function __construct($statusCode, $headers = array(), $content = '')
-    {
-        $this->statusCode = $statusCode;
-        $this->headers    = is_array($headers) ? $headers : array($headers);
-        $this->content    = $content;
-    }
-
-    protected $cookieToSet = array();
-    public function setCookie($name, $value = null, $expire = 0 , $path = '/', $domain = null, $secure = false, $httpOnly = false)
-    {
-        $this->cookieToSet[] = array(
-            'name'     => $name,
-            'value'    => $value,
-            'expire'   => $expire,
-            'path'     => $path,
-            'domain'   => $domain,
-            'secure'   => $secure,
-            'httpOnly' => $httpOnly,
-        );
-
-        return $this;
-    }
-
-    public function removeCookie($name, $path = '/', $domain = null, $secure = false, $httpOnly = false)
-    {
-        $this->setCookie($name, null, 0, $path, $domain, $secure, $httpOnly);
-
-        return $this;
-    }
-
-    public function addHeader($header)
-    {
-        $this->headers[] = $header;
-
-        return $this;
-    }
-
-    public function send()
-    {
-        if (!isset(static::$statusCodes[$this->statusCode])) {
-            throw new \Exception("Status code '$this->statusCode' is not allowed");
-        }
-
-        header(sprintf("HTTP/1.1 %s %s", $this->statusCode, static::$statusCodes[$this->statusCode]));
-
-        foreach ($this->cookieToSet as $cookieArgs) {
-            setcookie($cookieArgs['name'], $cookieArgs['value'], $cookieArgs['expire'], $cookieArgs['path'], $cookieArgs['domain'], $cookieArgs['secure'], $cookieArgs['httpOnly']);
-        }
-
-        foreach ($this->getHeaders() as $header) {
-            header($header);
-        }
-
-        echo $this->getContent();
-    }
-
-    public function isCacheable($statusCode, array $headers)
-    {
-        return $this->statusCode == $statusCode
-            && empty($this->cookieToSet)
-            && count(array_diff($this->getHeaders(), $headers)) == 0
-        ;
-    }
-
-    public function getHeaders()
-    {
-        return $this->headers;
-    }
-
-    public function getContent()
-    {
-        return $this->content;
-    }
 }

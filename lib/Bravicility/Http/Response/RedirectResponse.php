@@ -24,12 +24,12 @@ class RedirectResponse extends Response
             $location = $this->getSchema() . '://' . $_SERVER['HTTP_HOST'] . $location;
         }
 
-        $this->headers[] = 'Location: ' . $location;
+        $this->addHeader('Location: ' . $location);
 
         parent::send();
     }
 
-    private function getSchema()
+    protected function getSchema()
     {
         if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443)) {
             return 'https';

@@ -6,6 +6,7 @@ class JsonResponse extends Response
 {
     public function __construct($statusCode, $json = null)
     {
-        parent::__construct($statusCode, array('Content-Type: application/json; charset=UTF-8'), json_encode($json));
+        parent::__construct($statusCode, json_encode($json));
+        $this->addHeader('Content-Type: application/json; charset=UTF-8');
     }
-} 
+}

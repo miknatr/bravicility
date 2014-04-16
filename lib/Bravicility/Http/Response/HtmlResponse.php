@@ -6,6 +6,7 @@ class HtmlResponse extends Response
 {
     public function __construct($statusCode, $html)
     {
-        parent::__construct($statusCode, array('Content-Type: text/html; charset=UTF-8'), $html);
+        parent::__construct($statusCode, $html);
+        $this->addHeader('Content-Type: text/html; charset=UTF-8');
     }
-} 
+}
