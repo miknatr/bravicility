@@ -85,6 +85,12 @@ class Response
         return $this->headers;
     }
 
+    public function setAllowedCrossDomainUrls(array $urls)
+    {
+        $this->addHeader('Access-Control-Allow-Credentials: true');
+        $this->addHeader('Access-Control-Allow-Origin: ' . join(' ', $urls));
+    }
+
 
     //
     // COOKIES
