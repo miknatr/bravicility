@@ -91,6 +91,13 @@ class Response
         $this->addHeader('Access-Control-Allow-Origin: ' . join(' ', $urls));
     }
 
+    public function disableCaching()
+    {
+        $this->addHeader('Cache-Control: no-cache, no-store, must-revalidate');
+        $this->addHeader('Pragma: no-cache');
+        $this->addHeader('Expires: 0');
+    }
+
 
     //
     // COOKIES
