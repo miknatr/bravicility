@@ -4,12 +4,15 @@ namespace Bravicility\Curler;
 
 class Curler
 {
-    protected $method       = 'GET';
-    protected $headers      = array();
-    protected $urlParts     = array();
-    protected $query        = array();
-    protected $requestBody  = '';
-    protected $ignoreErrors = false;
+    protected $method         = 'GET';
+    protected $headers        = array();
+    protected $urlParts       = array();
+    protected $query          = array();
+    protected $requestBody    = '';
+    protected $ignoreErrors   = false;
+    protected $validateSsl    = false;
+    protected $followLocation = true;
+    protected $timeout        = 3;
 
 
     //
@@ -190,6 +193,34 @@ class Curler
         return $this;
     }
 
+    /**
+     * @return Curler
+     */
+    public function validateSsl()
+    {
+        $this->validateSsl = true;
+        return $this;
+    }
+
+    /**
+     * @return Curler
+     */
+    public function dontFollowLocation()
+    {
+        $this->followLocation = false;
+        return $this;
+    }
+
+    /**
+     * @param int $seconds
+     * @return Curler
+     */
+    public function timeout($seconds)
+    {
+        $this->timeout = $seconds;
+        return $this;
+    }
+
 
     //
     // IMPLEMENTATION
@@ -222,8 +253,7 @@ class Curler
 
         $ch = curl_init($url);
 
-        // STOPPER
-        curl_setopt($ch, CURLOPT_TIMEOUT, 3);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
 
         switch ($this->method) {
             case 'GET':
@@ -251,11 +281,15 @@ class Curler
 
         curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); // exec will return the response body
-        // STOPPER
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        // STOPPER
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // will follow redirects in response
+
+        if (!$this->validateSsl) {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        }
+
+        if ($this->followLocation) {
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // will follow redirects in response
+        }
 
         $response = curl_exec($ch);
 
