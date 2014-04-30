@@ -2,6 +2,8 @@
 
 namespace Bravicility\Http\Response;
 
+use Bravicility\Http\Request;
+
 class Response
 {
     public function __construct($statusCode, $content = '')
@@ -85,10 +87,41 @@ class Response
         return $this->headers;
     }
 
-    public function setAllowedCrossDomainUrls(array $urls)
+    public function setAllowedCrossDomainUrls(Request $request, array $urls)
     {
+        $origin = null;
+
+        if (count($urls) > 1) {
+            // we can only set one allowed origin URL
+            // if many are given, we need to find the current one
+            $requestOrigin = $request->header('Origin');
+            if ($requestOrigin) {
+                // the docs say this will not have any path info, but we don't trust those bastards
+                if (substr($requestOrigin, -1) != '/') {
+                    $requestOrigin .= '/';
+                }
+
+                foreach ($urls as $allowedOrigin) {
+                    $allowedOriginWithSlash = $allowedOrigin;
+                    if (substr($allowedOriginWithSlash, -1) != '/') {
+                        $allowedOriginWithSlash .= '/';
+                    }
+                    if (strpos($requestOrigin, $allowedOriginWithSlash) === 0) {
+                        $origin = $allowedOrigin;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!$origin) {
+            // only one URL given, or none matches the request
+            // fallback to first allowed origin
+            $origin = reset($urls);
+        }
+
         $this->addHeader('Access-Control-Allow-Credentials: true');
-        $this->addHeader('Access-Control-Allow-Origin: ' . join(' ', $urls));
+        $this->addHeader('Access-Control-Allow-Origin: ' . $origin);
     }
 
     public function disableCaching()
