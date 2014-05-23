@@ -118,7 +118,8 @@ class RouteProvider
             }
         }
 
-        $this->ensureNoOverlappingRoutes($routes);
+        // STOPPER финансер не работает, нужно или сделать поддержку форматов или как-то мозг не ебать, или в разделители добавить кроме / еще всякие _,-.
+        //$this->ensureNoOverlappingRoutes($routes);
 
         $routes = $this->sortRoutesByPriority($routes);
 
