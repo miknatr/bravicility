@@ -11,6 +11,16 @@ class FailureInfoResponse extends TextResponse
         parent::__construct(500, $this->drawError($error));
     }
 
+    public function send()
+    {
+        if (headers_sent()) {
+            // prevent the 'headers already sent' error overtaking the actual error
+            echo $this->getContent();
+        } else {
+            parent::send();
+        }
+    }
+
     protected function drawError(array $error)
     {
         return
