@@ -14,12 +14,26 @@ class Request
             ->setUrlPath($_SERVER['REQUEST_URI'])
             ->setGet($_GET)
             ->setPost($_POST)
+            ->setFiles(static::getUploadedFilesFromPhp($_FILES))
             ->setCookies($_COOKIE)
             ->setServer($_SERVER)
             ->setRawBody(function () {
                 return file_get_contents('php://input');
             })
         ;
+    }
+
+    public static function getUploadedFilesFromPhp(array $phpFiles)
+    {
+        $files = array();
+        foreach ($phpFiles as $name => $phpFile) {
+            // TODO <input type="file" name="files[]" />
+            $file = UploadedFile::createFromPhpUpload($phpFile);
+            if ($file) {
+                $files[$name] = $file;
+            }
+        }
+        return $files;
     }
 
 
@@ -114,6 +128,44 @@ class Request
     public function setPost(array $post)
     {
         $this->post = $post;
+        return $this;
+    }
+
+
+    //
+    // FILES
+    //
+
+    /**
+     * @var UploadedFile[]
+     */
+    protected $files = array();
+
+    /**
+     * @param string $name
+     * @param null $default
+     * @return UploadedFile|null
+     */
+    public function file($name, $default = null)
+    {
+        return isset($this->files[$name]) ? $this->files[$name] : $default;
+    }
+
+    /**
+     * @return UploadedFile[]
+     */
+    public function allFiles()
+    {
+        return $this->files;
+    }
+
+    /**
+     * @param UploadedFile[] $files
+     * @return $this
+     */
+    public function setFiles(array $files)
+    {
+        $this->files = $files;
         return $this;
     }
 
@@ -241,6 +293,9 @@ class Request
         return $this->server('HTTP_USER_AGENT');
     }
 
+    /**
+     * @return string full Content-Type header value, e.g. "multipart/form-data; boundary=---------------------------17265797101826147706228211818"
+     */
     public function getContentType()
     {
         $header = $this->header('Content-Type');
@@ -248,6 +303,18 @@ class Request
             $header = $this->server('HTTP_CONTENT_TYPE');
         }
         return $header;
+    }
+
+    /**
+     * @return string only the first part, e.g. "application/json" or "multipart/form-data"
+     */
+    public function getContentTypeId()
+    {
+        $ct = $this->getContentType();
+        if ($ct) {
+            return trim(explode(';', $ct, 2)[0]);
+        }
+        return null;
     }
 
     /**
@@ -293,19 +360,32 @@ class Request
         return $this;
     }
 
-    protected $parsed = array();
-
     public function parseBodyAsJson()
     {
         $arr = json_decode($this->getRawBody(), true);
-        $this->parsed = is_array($arr) ? $arr : array();
-        return $this->parsed;
+        return is_array($arr) ? $arr : array();
     }
 
     public function parseBodyAsUrlEncoded()
     {
-        parse_str($this->getRawBody(), $this->parsed);
-        return $this->parsed;
+        $parsed = array();
+        parse_str($this->getRawBody(), $parsed);
+        return $parsed;
+    }
+
+    public function getSubmittedFormData()
+    {
+        switch ($this->getMethod()) {
+            case 'GET':
+                return $this->allGet();
+
+            case 'POST':
+                // PHP нам помогает тут попарсить всё
+                return array_merge($this->allPost(), $this->allFiles());
+
+            default:
+                return $this->parseBodyAsUrlEncoded();
+        }
     }
 
 
