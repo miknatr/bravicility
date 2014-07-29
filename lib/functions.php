@@ -260,3 +260,28 @@ function buildXmlFromArrayWithoutPrefix(array $data)
 
     return $xml;
 }
+
+// snake_case -> camelCase
+function snakeToCamelCase($string)
+{
+    return preg_replace_callback(
+        '/_(.)/',
+        function ($m) {
+            return strtoupper($m[1]);
+        },
+        $string
+    );
+}
+
+function camelToSnakeCase($string)
+{
+    // camelCase -> snake_case
+    // WARNING: if the first letter is capital, we'll make ClassName -> _class_name
+    return preg_replace_callback(
+        '/[A-Z]/',
+        function ($m) {
+            return '_'.strtolower($m[0]);
+        },
+        $string
+    );
+}
