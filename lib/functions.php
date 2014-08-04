@@ -29,6 +29,31 @@ function formatMoney($amount)
     return number_format($amount, 2, '.', '');
 }
 
+function phoneToInt($phone)
+{
+    return preg_replace('/\D+/', '', $phone);
+}
+
+function formatPhone($phone)
+{
+    $clean = phoneToInt($phone);
+    // ru
+    $formatted = preg_replace('/^7(\d\d\d)(\d\d\d)(\d\d)(\d\d)$/', '+7 $1 $2-$3-$4', $clean);
+    $formatted = preg_replace('/^8(\d\d\d)(\d\d\d)(\d\d)(\d\d)$/', '+7 $1 $2-$3-$4', $formatted);
+    // ua
+    $formatted = preg_replace('/^380(\d\d)(\d\d\d)(\d\d)(\d\d)$/', '+380 $1 $2-$3-$4', $formatted);
+    // az
+    $formatted = preg_replace('/^994(\d\d\d)(\d\d\d\d\d)$/', '+994 $1 $2', $formatted);               // 994 xxx xxxxx      8 digits
+    $formatted = preg_replace('/^994(\d\d)(\d\d\d)(\d\d)(\d\d)$/', '+994 $1 $2-$3-$4', $formatted);   // 994 xx xxx-xx-xx   9 digits
+    $formatted = preg_replace('/^994(\d\d\d)(\d\d\d)(\d\d)(\d\d)$/', '+994 $1 $2-$3-$4', $formatted); // 994 xxx xxx-xx-xx 10 digits
+    // am
+    $formatted = preg_replace('/^374(9\d|10)(\d\d\d\d\d\d)$/', '+374 $1 $2', $formatted);
+    $formatted = preg_replace('/^374(\d\d\d)(\d\d\d\d\d)$/', '+374 $1 $2', $formatted);
+
+    // if we could not recognize the phone, let's return the original in hopes it had any formatting
+    return $clean == $formatted ? $phone : $formatted;
+}
+
 function getPhpdocTags($phpdoc)
 {
     preg_match_all(
