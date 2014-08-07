@@ -31,7 +31,9 @@ function formatMoney($amount)
 
 function phoneToInt($phone)
 {
-    return preg_replace('/\D+/', '', $phone);
+    $phone = preg_replace('/\D+/', '', $phone);
+    $phone = preg_replace('/^8\d{10}$/', '7$1$2-$3-$4', $phone);
+    return $phone;
 }
 
 function formatPhone($phone)
