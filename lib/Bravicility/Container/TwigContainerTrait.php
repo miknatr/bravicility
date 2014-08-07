@@ -36,6 +36,7 @@ trait TwigContainerTrait
             $this->twigInTwigTrait->addFilter(new \Twig_SimpleFilter('dt2RA_ru', 'dt2RA_ru'));
             $this->twigInTwigTrait->addFilter(new \Twig_SimpleFilter('money', 'formatMoney'));
             $this->twigInTwigTrait->addFilter(new \Twig_SimpleFilter('url', 'urlencode'));
+            $this->twigInTwigTrait->addFilter(new \Twig_SimpleFilter('formatPhone', 'formatPhone'));
         }
 
         return $this->twigInTwigTrait;
