@@ -87,6 +87,11 @@ class Response
         return $this->headers;
     }
 
+    public function allowAnyCrossDomainUrl(Request $request)
+    {
+        $this->setAllowedCrossDomainUrls($request, array($request->header('Origin')));
+    }
+
     public function setAllowedCrossDomainUrls(Request $request, array $urls)
     {
         $origin = null;
