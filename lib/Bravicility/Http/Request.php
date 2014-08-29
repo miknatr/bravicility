@@ -64,6 +64,20 @@ class Request
         return $this->method;
     }
 
+    public function getScheme()
+    {
+        $https = $this->server('HTTPS');
+        if ($https === 'off') {
+            $https = false;
+        }
+        return $https ? 'https' : 'http';
+    }
+
+    public function getHost()
+    {
+        return $this->header('Host');
+    }
+
     public function setUrlPath($urlPath)
     {
         $this->urlPath = explode('?', $urlPath, 2)[0];
