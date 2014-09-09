@@ -9,7 +9,7 @@ class Request
      */
     public static function createFromGlobals()
     {
-        return (new static)
+        return (new self)
             ->setMethod($_SERVER['REQUEST_METHOD'])
             ->setUrlPath($_SERVER['REQUEST_URI'])
             ->setGet($_GET)

@@ -12,7 +12,8 @@ class RedirectResponse extends Response
             throw new \LogicException('Redirect location must be absolute or begin with "/", "' . $location . '" is not');
         }
 
-        parent::__construct(302);
+        parent::__construct();
+        $this->setStatusCode(302);
         $this->location = $location;
     }
 

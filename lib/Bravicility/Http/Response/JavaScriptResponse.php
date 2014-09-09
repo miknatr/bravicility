@@ -4,9 +4,9 @@ namespace Bravicility\Http\Response;
 
 class JavaScriptResponse extends Response
 {
-    public function __construct($statusCode, $source)
+    public function __construct($source)
     {
-        parent::__construct($statusCode, $source);
-        $this->addHeader('Content-Type: text/javascript; charset=UTF-8');
+        parent::__construct($source);
+        $this->addHeader('Content-Type: application/javascript; charset=UTF-8');
     }
 }

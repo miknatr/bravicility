@@ -4,9 +4,9 @@ namespace Bravicility\Http\Response;
 
 class TextResponse extends Response
 {
-    public function __construct($statusCode, $text)
+    public function __construct($text)
     {
-        parent::__construct($statusCode, $text);
+        parent::__construct($text);
         $this->addHeader('Content-Type: text/plain; charset=UTF-8');
     }
 }

@@ -96,7 +96,7 @@ function month2RA_ru($month)
  * @author runcore
  * @uses morph(...)
  */
-function num2str($num)
+function num2str_ru($num)
 {
     $nul     = 'ноль';
     $ten     = array(

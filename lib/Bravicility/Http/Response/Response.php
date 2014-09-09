@@ -6,9 +6,8 @@ use Bravicility\Http\Request;
 
 class Response
 {
-    public function __construct($statusCode, $content = '')
+    public function __construct($content = '')
     {
-        $this->setStatusCode($statusCode);
         $this->setContent($content);
     }
 
@@ -34,14 +33,6 @@ class Response
         }
 
         echo $this->getContent();
-    }
-
-    public function isCacheable($statusCode, array $headers)
-    {
-        return $this->getStatusCode() == $statusCode
-            && $this->getCookies() === array()
-            && count(array_diff($this->getHeaders(), $headers)) == 0
-        ;
     }
 
 
@@ -174,7 +165,7 @@ class Response
     // STATUS CODES
     //
 
-    protected $statusCode;
+    protected $statusCode = 200;
 
     public function getStatusCode()
     {
