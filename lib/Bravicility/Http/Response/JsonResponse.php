@@ -4,9 +4,9 @@ namespace Bravicility\Http\Response;
 
 class JsonResponse extends Response
 {
-    public function __construct($statusCode, $json = null)
+    public function __construct($json = null)
     {
-        parent::__construct($statusCode, json_encode($json));
+        parent::__construct(json_encode($json));
         $this->addHeader('Content-Type: application/json; charset=UTF-8');
     }
 }
