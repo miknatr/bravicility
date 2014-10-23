@@ -81,6 +81,7 @@ class Response
     public function allowAnyCrossDomainUrl(Request $request)
     {
         $this->setAllowedCrossDomainUrls($request, array($request->header('Origin')));
+        return $this;
     }
 
     public function setAllowedCrossDomainUrls(Request $request, array $urls)
@@ -118,6 +119,8 @@ class Response
 
         $this->addHeader('Access-Control-Allow-Credentials: true');
         $this->addHeader('Access-Control-Allow-Origin: ' . $origin);
+
+        return $this;
     }
 
     public function disableCaching()
