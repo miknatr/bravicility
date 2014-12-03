@@ -58,6 +58,8 @@ function formatPhone($phone)
 
 function getPhpdocTags($phpdoc)
 {
+    $phpdoc = trim($phpdoc);
+    $phpdoc = substr($phpdoc, 2, -2); // trim /* and */
     preg_match_all(
         '{
             ^
