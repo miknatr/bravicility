@@ -79,6 +79,11 @@ class UploadedFile
         }
     }
 
+    public function getTmpFilename()
+    {
+        return $this->tmpFileName;
+    }
+
 
     //
     // PROPERTIES
