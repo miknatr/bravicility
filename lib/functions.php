@@ -342,3 +342,7 @@ function u_ucfirst($string)
 {
     return mb_ucfirst($string, 'utf-8');
 }
+function u_strpos($haystack, $needle, $offset = null)
+{
+    return mb_strpos($haystack, $needle, $offset, 'utf-8');
+}
