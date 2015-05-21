@@ -8,6 +8,7 @@ class UploadedFile
     protected $name;
     protected $contentType;
     protected $size;
+    protected $error;
 
     /**
      * @param array $data
@@ -22,23 +23,22 @@ class UploadedFile
         // http://www.php.net/manual/en/features.file-upload.post-method.php
 
         if (empty($data['name'])) {
-            throw new UploadedFileException('Не указано имя загружаемого файла');
+            return (new self)->setError('Не указано имя загружаемого файла');
         }
         $filename = $data['name'];
 
         if (!empty($data['error'])) {
-            throw new UploadedFileException(static::phpUploadErrorDescription($data['error'], $filename));
+            return (new self)->setError(static::phpUploadErrorDescription($data['error'], $filename));
         }
 
         if (empty($data['tmp_name']) || empty($data['type'])) {
-            throw new UploadedFileException("Ошибка при загрузке файла {$filename}");
+            return (new self)->setError("Ошибка при загрузке файла {$filename}");
         }
 
         $size = empty($data['size']) ? filesize($data['tmp_name']) : $data['size'];
 
-        /** @var UploadedFile $uploadedFile */
-        $uploadedFile = new static($data['tmp_name']);
-        return $uploadedFile
+        return (new self())
+            ->setTmpFilename($data['tmp_name'])
             ->setName($filename)
             ->setContentType($data['type'])
             ->setSize($size)
@@ -62,11 +62,6 @@ class UploadedFile
         }
     }
 
-    public function __construct($tmpFileName)
-    {
-        $this->tmpFileName = $tmpFileName;
-    }
-
 
     //
     // SAVING THE FILE
@@ -77,6 +72,12 @@ class UploadedFile
         if (!@move_uploaded_file($this->tmpFileName, $filename)) {
             throw new UploadedFileException("Ошибка при сохранении загруженного файла");
         }
+    }
+
+    public function setTmpFilename($tmpFileName)
+    {
+        $this->tmpFileName = $tmpFileName;
+        return $this;
     }
 
     public function getTmpFilename()
@@ -131,6 +132,24 @@ class UploadedFile
     public function setSize($size)
     {
         $this->size = $size;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getError()
+    {
+        return $this->error;
+    }
+
+    /**
+     * @param mixed $error
+     * @return UploadedFile
+     */
+    public function setError($error)
+    {
+        $this->error = $error;
         return $this;
     }
 }
