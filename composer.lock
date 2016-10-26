@@ -9,16 +9,16 @@
     "packages": [
         {
             "name": "miknatr/grace-dbal",
-            "version": "v1.4.1",
+            "version": "v1.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/miknatr/grace-dbal.git",
-                "reference": "d16602fe43ebca960d479aebdb588480dcadc846"
+                "reference": "ac7c0316e3e669fdd92936fe675a7345f21ab595"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/miknatr/grace-dbal/zipball/d16602fe43ebca960d479aebdb588480dcadc846",
-                "reference": "d16602fe43ebca960d479aebdb588480dcadc846",
+                "url": "https://api.github.com/repos/miknatr/grace-dbal/zipball/ac7c0316e3e669fdd92936fe675a7345f21ab595",
+                "reference": "ac7c0316e3e669fdd92936fe675a7345f21ab595",
                 "shasum": ""
             },
             "type": "library",
@@ -37,7 +37,7 @@
                     "email": "miknatr@gmail.com"
                 }
             ],
-            "time": "2016-10-26 14:58:48"
+            "time": "2016-10-26 16:18:46"
         },
         {
             "name": "monolog/monolog",
